@@ -1,0 +1,120 @@
+---
+title: "Tooth Dataset Analysis"
+author: "Danish Tamboli"
+date: "8/5/2020"
+output: pdf_document
+---
+# Tooth Data Analysis to find relation between Supplement,Dosage and Tooth length.
+
+## Overview:
+ * An initial analysis on the Tooth growth Dataset.
+ * Our goal is to find is there exists a relation with Supplements (VC, OJ), their dosage prescribed and Tooth Length.
+ 
+### A summary of the Dataset:
+```{r, Tooth Dataset Summary}
+library(ggplot2)
+teeth <- datasets::ToothGrowth
+str(teeth)
+summary(teeth)
+table(teeth$dose)
+table(teeth$supp)
+```
+
+### Initial Observations:
+ * Length of Tooth:
+   * The Average Tooth Length is 18.81
+   * The smallest Tooth Length is 4.20
+   * The Largest Tooth Length is 33.90
+ * Suppliment Consists of 2 types:
+   * VC
+   * OJ
+ * Dosage in milligrams/day:
+   * The average dosage is 1.167.
+   * The minimum dosage is 0.500.
+   * The maximum dosage is 2.000.
+   
+```{r,Tooth Graphs,fig.height=4}
+
+ggplot(data = teeth) + geom_boxplot(aes(dose,len,group = interaction(dose,supp),fill=supp)) +labs(x= "Dosage", y= "Length of Tooth", title = "Variation of Dosage on Tooth length and Supppliment Factor")
+ggplot(data = teeth) + geom_point(aes(dose,len,group = dose,color=supp)) + labs(x= "Dosage", y= "Length of Tooth", title = "Variation of Dosage on Tooth length and Suppliment Factor")
+```
+### From the above we can make the assumptions:
+ * As Tooth Length increases, the Dosage also increases.
+ * The Tooth Length is greated on suppliment type OJ than on VC.
+ 
+## Tring to find a correlation between Dosage,Length and Support:
+
+### Let us consider different hypotheses:
+ Hypotheses at 3 different dosage levels to see if we can find a relationship between Supplements and Length of Tooth:
+  * 0.5mg/day
+  * 1mg/day
+  * 2mg/day
+
+### Null Hypothesis that there is no difference between suppliments OJ and VC at 0.5mg/day dosage:
+```{r,0.5mg/Day Dosage Hypothesis, echo=FALSE}
+
+OJdose0.5 <- with(teeth[teeth$dose==0.5 & teeth$supp == "OJ",],t.test(len))
+print(paste("OJ 1mg/day dosage 95% confidence interval:",OJdose0.5$conf.int[1],OJdose0.5$conf.int[2]))
+
+VCdose0.5 <- with(teeth[teeth$dose==0.5 & teeth$supp == "VC",],t.test(len))
+print(paste("VC 1mg/day dosage 95% confidence interval:",VCdose0.5$conf.int[1],VCdose0.5$conf.int[2]))
+
+hypothesis0.5 <- with(teeth[teeth$dose==0.5,],t.test(len~supp))
+hypothesis0.5$estimate
+print(paste("Hypothesis of 1mg/day Dosage P Value:",hypothesis0.5$p.value))
+
+power0.5<- with(teeth[teeth$dose==0.5,],power.t.test(length(len),delta=13.23-7.98,sd=4.4997)$power)
+print(paste("The Power of differentiating OJ and VC in 0.5mg/day dosage is:",power0.5))
+
+```
+
+ * Upon looking at the 95% confidence intervals and Means of OJ and VC we can say that the Length of teeth for OJ and VC are very different.
+ * Upon looking at the P value and Power we can be confident that the two supplements OJ and VC are very different.
+ * Hence we can reject the Null Hypothesis and conclude that in fact the suppliments OJ and VC are different at 0.5mg/day dosage.
+
+
+### Null Hypothesis that there is no difference between suppliments OJ and VC at 1mg/day dosage:
+```{r,1mg/Day Dosage Hypothesis, echo=FALSE}
+
+OJdose1 <- with(teeth[teeth$dose==1 & teeth$supp == "OJ",],t.test(len))
+print(paste("OJ 1mg/day dosage 95% confidence interval:",OJdose1$conf.int[1],OJdose1$conf.int[2]))
+
+VCdose1 <- with(teeth[teeth$dose==1 & teeth$supp == "VC",],t.test(len))
+print(paste("VC 1mg/day dosage 95% confidence interval:",VCdose1$conf.int[1],VCdose1$conf.int[2]))
+
+hypothesis1 <- with(teeth[teeth$dose==1,],t.test(len~supp))
+hypothesis1$estimate
+print(paste("Hypothesis of 1mg/day Dosage P Value:",hypothesis1$p.value))
+
+power1<- with(teeth[teeth$dose==1,],power.t.test(length(len),delta=22.70-16.77,sd=4.4154)$power)
+print(paste("The Power of differentiating OJ and VC in 1mg/day dosage is:",power1))
+```
+ 
+ * Upon looking at the 95% confidence intervals and Means of OJ and VC we can say that the Length of teeth for OJ and VC are very different.
+ * Upon looking at the P value and Power we can be confident that the two supplements OJ and VC are very different.
+ * Hence we can reject the Null Hypothesis and conclude that in fact the supplements OJ and VC are different at 1mg/day dosage.
+ 
+### Null Hypothesis that there is no difference between suppliments OJ and VC at 2mg/day dosage:
+```{r,2mg/Day Dosage Hypothesis, echo=FALSE}
+
+OJdose2 <- with(teeth[teeth$dose==1 & teeth$supp == "OJ",],t.test(len))
+print(paste("OJ 1mg/day dosage 95% confidence interval:",OJdose2$conf.int[1],OJdose2$conf.int[2]))
+
+VCdose2 <- with(teeth[teeth$dose==1 & teeth$supp == "VC",],t.test(len))
+print(paste("VC 1mg/day dosage 95% confidence interval:",VCdose2$conf.int[1],VCdose2$conf.int[2]))
+
+hypothesis2 <- with(teeth[teeth$dose==2,],t.test(len~supp))
+hypothesis2$estimate
+print(paste("Hypothesis of 1mg/day Dosage P Value:",hypothesis2$p.value))
+
+power2<- with(teeth[teeth$dose==2,],power.t.test(length(len),delta=26.06-26.14,sd=3.7741)$power)
+print(paste("The Power of differentiating OJ and VC in 2mg/day dosage is:",power2))
+```
+
+ * Upon looking at the 95% confidence intervals and Means of OJ and VC we can say that the Length of teeth for OJ and VC are very similar.
+ * Upon looking at the P value and Power we cannot be confident that the two supplements OJ and VC are very different.
+ * Hence we cannot reject the Null Hypothesis and conclude that the supplements OJ and VC are similar at 2mg/day dosage.
+
+### Conclusion:
+ * We can conclude that there exists a direct relation between Tooth Length and Dosage level, the greater the dosage the greater the Tooth Length/Growth.
+ * We also observe that although in 0.5 and 1 mg/day dosage levels VC and OJ supplements perform very different, they perform very similar at 2 mg/day dosage level and hence we cannot conclude that there is a direct relation between Supplement type and Tooth Length/Growth. It needs to be looked further into.
